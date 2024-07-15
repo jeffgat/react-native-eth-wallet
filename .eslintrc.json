@@ -1,0 +1,10 @@
+{
+  "root": true,
+  "extends": [
+    "prettier", "plugin:prettier/recommended", "eslint:recommended", "plugin:@typescript-eslint/recommended"
+  ],
+  "plugins": [],
+  "rules": {
+    "import/order": "off"
+  }
+}
