@@ -4,6 +4,7 @@ import AssetExample from './components/AssetExample';
 import { useCallback } from 'react';
 import { useAsyncData } from './utils';
 import { mainnetProvider } from './provider';
+import { BigNumber } from 'ethers';
 
 const VITALIK_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045';
 
@@ -12,11 +13,9 @@ export default function App() {
         () => mainnetProvider.getBalance(VITALIK_ADDRESS),
         [],
     );
-    // const { data: balanceData, isLoading, isError } = useAsyncData(ethBalanceCheck);
-    // const balance = balanceData ? balanceData.toString() / 10 ** 18 : null;
-    // const balanceString = `Vitalk's Mainnet ETH Balance is ${balance}`;
-    const { data: balanceData, isLoading } = useAsyncData(ethBalanceCheck);
-    const balanceString = `Vitalk's Mainnet ETH Balance is`;
+    const { data: balanceData, isLoading, error } = useAsyncData(ethBalanceCheck);
+    const balance = balanceData ? Number((balanceData).toString()) / 10 ** 18 : null;
+    const balanceString = `Vitalk's Mainnet ETH Balance is ${balance}`;
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.paragraph}>
