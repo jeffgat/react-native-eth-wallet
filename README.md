@@ -18,6 +18,5 @@
   - maybe pie chart?
 
 ## organization
-- should use testnets so that review can interact with app properly
 - set necessary environment variables
 - some basic unit tests will be nice
