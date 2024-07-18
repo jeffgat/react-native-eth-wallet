@@ -1,42 +1,52 @@
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
-import { Text, SafeAreaView, StyleSheet } from 'react-native';
-import AssetExample from './components/AssetExample';
-import { useCallback } from 'react';
-import { useAsyncData } from './utils';
-import { mainnetProvider } from './provider';
-import { BigNumber } from 'ethers';
+import 'react-native-gesture-handler';
 
-const VITALIK_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045';
+import Header from './src/components/HeaderBackButton';
+import './src/polyfills/base64';
+import ImportWalletScreen from './src/screens/ImportWalletScreen';
+import OnboardingScreen from './src/screens/OnboardingScreen';
+import ViewWalletScreen from './src/screens/ViewWalletScreen';
+import { Screens } from './src/types/screens';
+import WalletScreen from './src/screens/WalletScreen';
 
 export default function App() {
-    const ethBalanceCheck = useCallback(
-        () => mainnetProvider.getBalance(VITALIK_ADDRESS),
-        [],
-    );
-    const { data: balanceData, isLoading, error } = useAsyncData(ethBalanceCheck);
-    const balance = balanceData ? Number((balanceData).toString()) / 10 ** 18 : null;
-    const balanceString = `Vitalk's Mainnet ETH Balance is ${balance}`;
-    return (
-        <SafeAreaView style={styles.container}>
-            <Text style={styles.paragraph}>
-                {isLoading ? 'Loading...' : balanceString}
-            </Text>
-            <AssetExample />
-        </SafeAreaView>
-    );
+  const Stack = createNativeStackNavigator();
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Onboarding">
+        <Stack.Screen
+          name={Screens.Onboarding}
+          component={OnboardingScreen}
+          options={{
+            headerShown: false
+          }}
+        />
+        <Stack.Screen
+          name={Screens.ImportWallet}
+          component={ImportWalletScreen}
+          options={{
+            headerLeft: () => <Header />,
+            headerTransparent: true
+          }}
+        />
+        <Stack.Screen
+          name={Screens.ViewWallet}
+          component={ViewWalletScreen}
+          options={{
+            headerLeft: () => <Header />,
+            headerTransparent: true
+          }}
+        />
+        <Stack.Screen
+          name={Screens.Wallet}
+          component={WalletScreen}
+          options={{
+            headerShown: false
+          }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        backgroundColor: '#ecf0f1',
-        padding: 16,
-    },
-    paragraph: {
-        margin: 24,
-        fontSize: 16,
-        fontWeight: 'bold',
-        textAlign: 'center',
-    },
-});

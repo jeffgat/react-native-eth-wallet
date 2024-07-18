@@ -1,11 +1,23 @@
-# Sample Snack app
+# todos
 
-Open the `App.js` file to start writing some code. You can preview the changes directly on your phone or tablet by scanning the **QR code** or use the iOS or Android emulators. When you're done, click **Save** and share the link!
+## features
 
-When you're ready to see everything that Expo provides (or if you want to use your own editor) you can **Download** your project and use it with [expo cli](https://docs.expo.dev/get-started/installation/#expo-cli)).
+### full custoday
+- convert 12 word seed phrase to private key
+- add ability to send money
+- add input for public wallet address for the view wallet screen
+- do we need a transaction history here?
 
-All projects created in Snack are publicly available, so you can easily share the link to this project via link, or embed it on a web page with the `<>` button.
+### view only
+- setup an eth service
+- list tokens for balances > 0
+  - do we want to show ALL tokens or just a set list?
+- add visuals for token balances
+  - usd conversions
+  - multiple timeframe increase/decrease
+  - maybe pie chart?
 
-If you're having problems, you can tweet to us [@expo](https://twitter.com/expo) or ask in our [forums](https://forums.expo.dev/c/expo-dev-tools/61) or [Discord](https://chat.expo.dev/).
-
-Snack is Open Source. You can find the code on the [GitHub repo](https://github.com/expo/snack).
+## organization
+- should use testnets so that review can interact with app properly
+- set necessary environment variables
+- some basic unit tests will be nice
