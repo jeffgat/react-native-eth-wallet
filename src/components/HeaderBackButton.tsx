@@ -2,7 +2,7 @@ import { Entypo } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
-import { THEME } from '../config/theme';
+import { THEME } from '../constants/theme';
 
 type Props = {};
 

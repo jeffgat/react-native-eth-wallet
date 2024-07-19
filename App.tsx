@@ -1,52 +1,18 @@
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
-import 'react-native-gesture-handler';
-
-import Header from './src/components/HeaderBackButton';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Toast from 'react-native-toast-message';
+import AnimatedAppLoader from './src/components/AnimatedAppLoader';
 import './src/polyfills/base64';
-import ImportWalletScreen from './src/screens/ImportWalletScreen';
-import OnboardingScreen from './src/screens/OnboardingScreen';
-import ViewWalletScreen from './src/screens/ViewWalletScreen';
-import { Screens } from './src/types/screens';
-import WalletScreen from './src/screens/WalletScreen';
+import Routes from './src/routes/routes';
+import { toastConfig } from './src/ui/toast-config';
 
-export default function App() {
-  const Stack = createNativeStackNavigator();
+export default function App({}) {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Onboarding">
-        <Stack.Screen
-          name={Screens.Onboarding}
-          component={OnboardingScreen}
-          options={{
-            headerShown: false
-          }}
-        />
-        <Stack.Screen
-          name={Screens.ImportWallet}
-          component={ImportWalletScreen}
-          options={{
-            headerLeft: () => <Header />,
-            headerTransparent: true
-          }}
-        />
-        <Stack.Screen
-          name={Screens.ViewWallet}
-          component={ViewWalletScreen}
-          options={{
-            headerLeft: () => <Header />,
-            headerTransparent: true
-          }}
-        />
-        <Stack.Screen
-          name={Screens.Wallet}
-          component={WalletScreen}
-          options={{
-            headerShown: false
-          }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <AnimatedAppLoader>
+      <GestureHandlerRootView>
+        <Routes />
+        <Toast config={toastConfig} />
+      </GestureHandlerRootView>
+    </AnimatedAppLoader>
   );
 }

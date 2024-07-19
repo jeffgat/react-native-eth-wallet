@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, TextProps, TextStyle } from 'react-native';
-import { THEME } from '../config/theme';
+import { THEME } from '../constants/theme';
 
 interface BaseTextProps extends TextProps {
   children: React.ReactNode;

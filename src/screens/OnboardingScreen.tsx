@@ -1,12 +1,22 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import React from 'react';
+import { useAtomValue } from 'jotai';
+import React, { useEffect } from 'react';
 import { SafeAreaView, TouchableOpacity, View } from 'react-native';
-import { Screens } from '../types/screens';
+import { THEME } from '../constants/theme';
+import { userAtom } from '../state/atoms';
 import Container from '../ui/container';
 import BaseText from '../ui/text';
-import { THEME } from '../config/theme';
+import { Screens } from '../routes/screens';
 
 const OnboardingScreen = ({ navigation }) => {
+  const user = useAtomValue(userAtom);
+
+  useEffect(() => {
+    if (user.privateKey || user.publicAddress) {
+      navigation.navigate(Screens.Wallet);
+    }
+  }, [user]);
+
   return (
     <SafeAreaView className="flex-1 bg-neutral-900 flex justify-center">
       <Container>
@@ -19,7 +29,11 @@ const OnboardingScreen = ({ navigation }) => {
           onPress={() => navigation.navigate(Screens.ImportWallet)}
         >
           <View className="flex-row items-center mb-2">
-            <MaterialCommunityIcons name="import" size={22} color={THEME.colors.gold[600]} />
+            <MaterialCommunityIcons
+              name="import"
+              size={22}
+              color={THEME.colors.gold[600]}
+            />
             <BaseText className="font-bold text-lg ml-1">
               Import a wallet
             </BaseText>
@@ -33,7 +47,11 @@ const OnboardingScreen = ({ navigation }) => {
           onPress={() => navigation.navigate(Screens.ViewWallet)}
         >
           <View className="flex-row items-center mb-2">
-            <MaterialCommunityIcons name="eye" size={22} color={THEME.colors.gold[600]} />
+            <MaterialCommunityIcons
+              name="eye"
+              size={22}
+              color={THEME.colors.gold[600]}
+            />
             <BaseText className="font-bold text-lg ml-1">
               View a wallet
             </BaseText>

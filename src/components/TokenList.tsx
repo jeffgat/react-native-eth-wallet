@@ -1,54 +1,30 @@
+import { useAtomValue, useSetAtom } from 'jotai';
 import { Skeleton } from 'moti/skeleton';
-import React, { useCallback, useState } from 'react';
-import { FlatList, ScrollView, TouchableOpacity, View } from 'react-native';
-import { providers } from '../config/providers';
-import { getErc20Balances, getNativeTokenBalances } from '../services/ethereum';
+import React, { useCallback, useEffect } from 'react';
+import { FlatList, ScrollView, View } from 'react-native';
+import { providers } from '../constants/providers';
+import {
+  getErc20BalancesAcrossChains,
+  getNativeTokenBalances
+} from '../services/ethereum';
+
+import { totalBalanceAtom, userAtom } from '../state/atoms';
 import BaseText from '../ui/text';
-import { cn } from '../utils/helpers';
 import { useAsyncData } from '../utils/hooks';
+import Token from './Token';
 
-const VITALIK_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045';
-
-type TokenProps = {
-  item: {
-    abbr: string;
-    name: string;
-    balance: string;
-    chain?: string;
-  };
-};
-
-const Token = ({ item }: TokenProps) => (
-  <View
-    className="bg-neutral-800 mb-2 p-4 rounded-lg flex-row justify-between items-center"
-    key={item.chain ? `${item.chain}_${item.abbr}` : item.abbr}
-  >
-    <View className="flex-row items-center">
-      <View className="bg-neutral-400 rounded-full w-12 h-12 mr-4" />
-      <View>
-        <BaseText className="font-semibold capitalize">{item.name}</BaseText>
-        <BaseText className="opacity-60" ellipsizeMode="tail" numberOfLines={1}>
-          {parseFloat(item.balance).toFixed(4)} {item.abbr}
-        </BaseText>
-      </View>
-    </View>
-    <View>
-      {/* <BaseText className="font-semibold">0.000</BaseText> */}
-      <BaseText className="opacity-60">$15.00</BaseText>
-    </View>
-  </View>
-);
-
-const TokenList = () => {
-  const [tab, setTab] = useState('native');
+const TokenList = ({ handleTokenPress }) => {
+  const user = useAtomValue(userAtom);
+  const setTotalBalance = useSetAtom(totalBalanceAtom);
 
   const nativeBalances = useCallback(() => {
-    return getNativeTokenBalances(providers, VITALIK_ADDRESS);
+    return getNativeTokenBalances(providers, user.publicAddress);
   }, []);
   const erc20Balances = useCallback(() => {
-    return getErc20Balances(providers, VITALIK_ADDRESS);
+    return getErc20BalancesAcrossChains(providers, user.publicAddress);
   }, []);
 
+  // need to invalidate everything when the wallet address changes
   const {
     data: nativeBalancesData,
     isLoading: nativeBalancesLoading,
@@ -60,34 +36,41 @@ const TokenList = () => {
     error: erc20BalancesError
   } = useAsyncData(erc20Balances);
 
-  console.log('erc20BalancesData', erc20BalancesData);
-  if (nativeBalancesLoading || erc20BalancesLoading) {
+  useEffect(() => {}, []);
+
+  useEffect(() => {
+    if (!nativeBalancesData || !erc20BalancesData) {
+      return;
+    }
+
+    const totalNativeBalance = nativeBalancesData.reduce((acc, item) => {
+      acc += item.usdBalance;
+      return acc;
+    }, 0);
+
+    const totalErc20Balance = erc20BalancesData.reduce((acc, item) => {
+      acc += item.usdBalance;
+      return acc;
+    }, 0);
+
+    setTotalBalance(totalNativeBalance + totalErc20Balance);
+  }, [nativeBalancesData, erc20BalancesData]);
+
+  if (nativeBalancesError || erc20BalancesError) {
+    return (
+      <View className="flex-1">
+        <BaseText>Something went wrong with fetching your assets</BaseText>
+      </View>
+    );
   }
 
   return (
     <View className="flex-1">
-      <View className="flex-row items-center mb-4 mt-4">
-        <TouchableOpacity onPress={() => setTab('native')}>
-          <BaseText
-            className={cn(
-              'font-semibold mr-2',
-              tab !== 'native' && 'opacity-60'
-            )}
-          >
-            Native Tokens
-          </BaseText>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setTab('erc20')}>
-          <BaseText
-            className={cn('font-semibold', tab !== 'erc20' && 'opacity-60')}
-          >
-            ERC20 Tokens
-          </BaseText>
-        </TouchableOpacity>
-      </View>
+      <BaseText className={'font-semibold mr-2 my-4'}>Your Tokens</BaseText>
+
       {nativeBalancesLoading || erc20BalancesLoading ? (
         <ScrollView>
-          {Array.from({ length: 4 }).map((_, i) => (
+          {Array.from({ length: 8 }).map((_, i) => (
             <View
               key={i}
               className="flex flex-row items-center justify-between p-4 bg-neutral-800 rounded-lg mb-2"
@@ -107,23 +90,17 @@ const TokenList = () => {
         </ScrollView>
       ) : (
         <View className="flex-1">
-          {tab === 'native' ? (
-            <>
-              <FlatList
-                className="flex-1"
-                data={nativeBalancesData}
-                renderItem={({ item }) => <Token item={item} />}
-                showsVerticalScrollIndicator={false}
+          <FlatList
+            className="flex-1"
+            data={[...nativeBalancesData, ...erc20BalancesData]}
+            renderItem={({ item }) => (
+              <Token
+                item={item}
+                handleTokenPress={() => handleTokenPress(item)}
               />
-            </>
-          ) : (
-            <FlatList
-              className="flex-1"
-              data={erc20BalancesData}
-              renderItem={({ item }) => <Token item={item} />}
-              showsVerticalScrollIndicator={false}
-            />
-          )}
+            )}
+            showsVerticalScrollIndicator={false}
+          />
         </View>
       )}
     </View>
