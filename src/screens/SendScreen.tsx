@@ -26,8 +26,8 @@ import Container from '../ui/container';
 import Spinner from '../ui/spinner';
 import BaseText from '../ui/text';
 import BaseTextInput from '../ui/text-input';
+import { THEME } from '../ui/theme';
 import { decryptString } from '../utils/cryptography';
-import { cn } from '../utils/helpers';
 import { useAsyncData } from '../utils/hooks';
 
 type RootStackParamList = {
@@ -42,19 +42,18 @@ interface SendScreenProps {
 }
 const SendScreen = ({ navigation, route }: SendScreenProps) => {
   const { params } = route;
+  const { colors, textSize, spacing } = THEME;
   const user = useAtomValue(userAtom);
   const [txLoading, setTxLoading] = useState(false);
-  const [addressInput, setAddressInput] = useState(
-    '0xb00C4B4035b36c28286e8b7e806D13fBd7B2e585'
-  );
-  const [amountInput, setAmountInput] = useState('0.00');
+  const [addressInput, setAddressInput] = useState('');
+  const [amountInput, setAmountInput] = useState('0');
   const [addressInputError, setAddressInputError] = useState('');
   const [amountInputError, setAmountInputError] = useState('');
   const [gasGwei, setGasGwei] = useState('0');
+
   const gasPrice = useCallback(() => {
     return getGasPrice(providers[params.chain]);
   }, []);
-
   const { data: gas } = useAsyncData(gasPrice);
 
   // effects
@@ -73,10 +72,10 @@ const SendScreen = ({ navigation, route }: SendScreenProps) => {
     }
   }, [amountInput]);
   useEffect(() => {
-    if (!ethers.utils.isAddress(addressInput)) {
+    if (!ethers.utils.isAddress(addressInput) && addressInput.length >= 42) {
       setAddressInputError('Invalid address');
     } else {
-      setAmountInputError('');
+      setAddressInputError('');
     }
   }, [addressInput]);
 
@@ -128,39 +127,74 @@ const SendScreen = ({ navigation, route }: SendScreenProps) => {
     parseFloat(amountInput) <= 0 ||
     isNaN(Number(amountInput));
 
+  // redirect
   if (!params || !user.encryptedPrivateKey) {
+    Toast.show({
+      type: 'error',
+      text1: 'Unable to fetch info',
+      text2: 'Please import your wallet again',
+      position: 'bottom'
+    });
     return navigation.navigate(Screens.Wallet);
   }
 
   return (
     <KeyboardAvoidingView
-      className="flex flex-1"
+      style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <SafeAreaView
-        className="flex-1 bg-neutral-900"
         style={{
+          flex: 1,
+          backgroundColor: colors.neutral[900],
           paddingTop:
             Platform.OS === 'android' ? Constants.statusBarHeight + 48 : 0
         }}
       >
-        <Container className="justify-between flex-1">
-          <BaseText className="text-center text-2xl font-bold mx-auto mb-4">
+        <Container style={{ flex: 1, justifyContent: 'space-between' }}>
+          <BaseText
+            style={{
+              textAlign: 'center',
+              fontSize: textSize['2xl'],
+              fontWeight: 700,
+              marginBottom: spacing[4]
+            }}
+          >
             Send
           </BaseText>
           <ScrollView keyboardShouldPersistTaps="handled" bounces={false}>
-            <View className="flex-row items-start justify-between mb-2">
-              <View className="flex-row">
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginBottom: spacing[2]
+              }}
+            >
+              <View style={{ flexDirection: 'row' }}>
                 <View>
                   <Image
-                    className="rounded-full w-12 h-12 mr-4"
+                    style={{
+                      borderRadius: 100,
+                      width: spacing[12],
+                      height: spacing[12],
+                      marginRight: spacing[4]
+                    }}
                     source={params.image || TOKEN_IMAGES.eth}
                     placeholder={{
                       blurhash: 'L5H2EC=PM+yV0g-mq.wG9c010JIp0M%LxtRj'
                     }}
                   />
                   <Image
-                    className="rounded-full w-5 h-5 absolute bottom-0 right-2 border-2 border-neutral-800"
+                    style={{
+                      borderRadius: 100,
+                      width: spacing[5],
+                      height: spacing[5],
+                      position: 'absolute',
+                      bottom: 0,
+                      right: spacing[2],
+                      borderWidth: 2,
+                      borderColor: colors.neutral[900]
+                    }}
                     source={params.chainImage || TOKEN_IMAGES.eth}
                     placeholder={{
                       blurhash: 'L5H2EC=PM+yV0g-mq.wG9c010JIp0M%LxtRj'
@@ -168,9 +202,11 @@ const SendScreen = ({ navigation, route }: SendScreenProps) => {
                   />
                 </View>
                 <View>
-                  <BaseText className="font-semibold">{params.abbr}</BaseText>
+                  <BaseText style={{ fontWeight: 600 }}>{params.abbr}</BaseText>
                   <BaseText
-                    className="opacity-60"
+                    style={{
+                      opacity: 0.6
+                    }}
                     ellipsizeMode="tail"
                     numberOfLines={1}
                   >
@@ -178,56 +214,100 @@ const SendScreen = ({ navigation, route }: SendScreenProps) => {
                   </BaseText>
                 </View>
               </View>
-              <View className="items-end">
-                <BaseText className="">Network Fee</BaseText>
-                <BaseText className="opacity-70">
+              <View
+                style={{
+                  alignItems: 'flex-end'
+                }}
+              >
+                <BaseText>Network Fee</BaseText>
+                <BaseText
+                  className="opacity-70"
+                  style={{
+                    opacity: 0.6
+                  }}
+                >
                   {parseFloat(gasGwei).toFixed(4)} gwei
                 </BaseText>
               </View>
             </View>
             <BaseTextInput
-              className={cn(
-                'h-12 px-2 text-neutral-150 bg-neutral-800 rounded-md mt-2 border items-center w-full',
-                addressInputError && 'border-red-400'
-              )}
+              style={{
+                height: spacing[12],
+                padding: spacing[2],
+                borderWidth: 1,
+                backgroundColor: colors.neutral[800],
+                color: colors.neutral[150],
+                width: '100%',
+                marginTop: spacing[2],
+                borderColor: addressInputError ? colors.red[400] : 'transparent'
+              }}
               textValue={addressInput}
               setTextValue={setAddressInput}
               placeholder="Enter the address you would like to send to"
             />
 
             <BaseTextInput
-              className={cn(
-                'h-12 px-2 text-neutral-150 bg-neutral-800 rounded-md mt-2 border items-center w-full',
-                amountInputError && 'border-red-400'
-              )}
+              style={{
+                height: spacing[12],
+                padding: spacing[2],
+                borderWidth: 1,
+                backgroundColor: colors.neutral[800],
+                color: colors.neutral[150],
+                width: '100%',
+                marginTop: spacing[2],
+                borderColor: amountInputError ? colors.red[400] : 'transparent'
+              }}
               textValue={amountInput}
               setTextValue={setAmountInput}
               placeholder="Amount"
               keyboardType="decimal-pad"
             />
 
-            <View className="flex-row justify-between py-4">
-              <BaseText className="opacity-70">
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                paddingTop: spacing[4],
+                paddingBottom: spacing[4]
+              }}
+            >
+              <BaseText style={{ opacity: 0.6 }}>
                 ~ ${(parseFloat(amountInput) * params.price || 0).toFixed(2)}
               </BaseText>
 
-              <View className="flex-row">
-                <BaseText className="mr-2">Available</BaseText>
-                <View className="items-end">
-                  <BaseText className="opacity-70">
+              <View style={{ flexDirection: 'row' }}>
+                <BaseText style={{ marginRight: spacing[2] }}>
+                  Available
+                </BaseText>
+                <View style={{ alignItems: 'flex-end' }}>
+                  <BaseText style={{ opacity: 0.6 }}>
                     {`${parseFloat(params.balance).toFixed(4)} ${params.abbr}`}
                   </BaseText>
                 </View>
               </View>
             </View>
-            <View className="items-center">
+            <View style={{ alignItems: 'center' }}>
               {amountInputError ? (
-                <BaseText className="text-red-400 text-center py-1">
+                <BaseText
+                  style={{
+                    color: colors.red[400],
+                    textAlign: 'center',
+                    paddingTop: spacing[1],
+                    paddingBottom: spacing[1]
+                  }}
+                >
                   {amountInputError}
                 </BaseText>
               ) : null}
               {addressInputError ? (
-                <BaseText className="text-red-400 text-center py-1">
+                <BaseText
+                  style={{
+                    color: colors.red[400],
+                    textAlign: 'center',
+                    paddingTop: spacing[1],
+                    paddingBottom: spacing[1]
+                  }}
+                >
                   {addressInputError}
                 </BaseText>
               ) : null}
@@ -236,17 +316,28 @@ const SendScreen = ({ navigation, route }: SendScreenProps) => {
 
           {/* txLoading */}
           <TouchableOpacity
-            className={cn(
-              'mb-4 rounded-md bg-gold-600 h-12 items-center justify-center flex',
-              disableButtonConditions && 'opacity-40'
-            )}
+            style={{
+              backgroundColor: colors.gold[600],
+              borderRadius: spacing[2],
+              marginBottom: spacing[4],
+              height: spacing[12],
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: disableButtonConditions ? 0.4 : 1
+            }}
             onPress={handleSend}
             disabled={disableButtonConditions}
           >
             {txLoading ? (
               <Spinner />
             ) : (
-              <BaseText className="text-center text-white font-bold">
+              <BaseText
+                style={{
+                  fontWeight: 700,
+                  textAlign: 'center',
+                  color: colors.neutral[0]
+                }}
+              >
                 Continue
               </BaseText>
             )}

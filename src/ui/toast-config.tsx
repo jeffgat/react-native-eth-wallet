@@ -1,5 +1,5 @@
 import { BaseToast, ErrorToast } from 'react-native-toast-message';
-import { THEME } from '../constants/theme';
+import { THEME } from './theme';
 
 export const toastConfig = {
   success: (props: any) => (

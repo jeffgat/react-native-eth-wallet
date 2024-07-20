@@ -3,7 +3,7 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import { useSetAtom } from 'jotai';
 import React, { useMemo } from 'react';
 import { TouchableOpacity, View } from 'react-native';
-import { THEME } from '../constants/theme';
+import { THEME } from '../ui/theme';
 import { Screens } from '../routes/screens';
 import { totalBalanceAtom, userAtom } from '../state/atoms';
 import BaseText from '../ui/text';

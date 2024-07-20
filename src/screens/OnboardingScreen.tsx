@@ -2,14 +2,15 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAtomValue } from 'jotai';
 import React, { useEffect } from 'react';
 import { SafeAreaView, TouchableOpacity, View } from 'react-native';
-import { THEME } from '../constants/theme';
+import { Screens } from '../routes/screens';
 import { userAtom } from '../state/atoms';
 import Container from '../ui/container';
 import BaseText from '../ui/text';
-import { Screens } from '../routes/screens';
+import { THEME } from '../ui/theme';
 
 const OnboardingScreen = ({ navigation }) => {
   const user = useAtomValue(userAtom);
+  const { colors, textSize, spacing } = THEME;
 
   // effects
   useEffect(() => {
@@ -19,45 +20,96 @@ const OnboardingScreen = ({ navigation }) => {
   }, [user]);
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-900 flex justify-center">
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: colors.neutral[900],
+        justifyContent: 'center'
+      }}
+    >
       <Container>
-        <BaseText className="text-center text-2xl font-bold mx-auto">
+        <BaseText
+          style={{
+            textAlign: 'center',
+            fontSize: textSize['2xl'],
+            fontWeight: 700
+          }}
+        >
           Select an option
         </BaseText>
 
         <TouchableOpacity
-          className="bg-neutral-800 p-4 rounded-lg mt-4"
+          style={{
+            backgroundColor: colors.neutral[800],
+            padding: spacing[4],
+            borderRadius: spacing[2],
+            marginTop: spacing[4]
+          }}
           onPress={() => navigation.navigate(Screens.ImportWallet)}
         >
-          <View className="flex-row items-center mb-2">
+          <View
+            style={{
+              alignItems: 'center',
+              flexDirection: 'row',
+              marginBottom: spacing[2]
+            }}
+          >
             <MaterialCommunityIcons
               name="import"
               size={22}
               color={THEME.colors.gold[600]}
             />
-            <BaseText className="font-bold text-lg ml-1">
+            <BaseText
+              style={{
+                fontWeight: 700,
+                fontSize: textSize['lg'],
+                marginLeft: spacing[1]
+              }}
+            >
               Import a wallet
             </BaseText>
           </View>
-          <BaseText className="opacity-70">
+          <BaseText style={{ opacity: 0.7 }}>
             Enter your recovery phase to send transactions
           </BaseText>
         </TouchableOpacity>
         <TouchableOpacity
-          className="bg-neutral-800 p-4 rounded-lg mt-4"
+          style={{
+            backgroundColor: colors.neutral[800],
+            padding: spacing[4],
+            borderRadius: spacing[2],
+            marginTop: spacing[4]
+          }}
           onPress={() => navigation.navigate(Screens.ViewWallet)}
         >
-          <View className="flex-row items-center mb-2">
+          <View
+            style={{
+              alignItems: 'center',
+              flexDirection: 'row',
+              marginBottom: spacing[2]
+            }}
+          >
             <MaterialCommunityIcons
               name="eye"
               size={22}
               color={THEME.colors.gold[600]}
             />
-            <BaseText className="font-bold text-lg ml-1">
+            <BaseText
+              className="font-bold text-lg ml-1"
+              style={{
+                fontWeight: 700,
+                fontSize: textSize['lg'],
+                marginLeft: spacing[1]
+              }}
+            >
               View a wallet
             </BaseText>
           </View>
-          <BaseText className="opacity-70">
+          <BaseText
+            style={{
+              opacity: 0.7
+            }}
+          >
             Enter a wallet address to view its token balances
           </BaseText>
         </TouchableOpacity>

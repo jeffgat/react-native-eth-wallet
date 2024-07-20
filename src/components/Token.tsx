@@ -4,6 +4,7 @@ import { TouchableOpacity, View } from 'react-native';
 import { TokenMetadata } from '../services/ethereum';
 import { userAtom } from '../state/atoms';
 import BaseText from '../ui/text';
+import { THEME } from '../ui/theme';
 import { formatNumberWithCommas } from '../utils/helpers';
 
 type TokenProps = {
@@ -12,18 +13,32 @@ type TokenProps = {
 };
 
 const Token = ({ token, handleTokenPress }: TokenProps) => {
+  const { colors, textSize, spacing } = THEME;
   const user = useAtomValue(userAtom);
   return (
     <TouchableOpacity
-      className="bg-neutral-800 mb-2 p-4 rounded-lg flex-row justify-between items-center"
+      style={{
+        backgroundColor: colors.neutral[800],
+        padding: spacing[4],
+        borderRadius: spacing[2],
+        marginBottom: spacing[2],
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+      }}
       key={token.chain ? `${token.chain}_${token.abbr}` : token.abbr}
       onPress={() => handleTokenPress(token)}
       disabled={!user.encryptedPrivateKey}
     >
-      <View className="flex-row items-center">
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <View>
           <Image
-            className="rounded-full w-12 h-12 mr-4"
+            style={{
+              borderRadius: 80,
+              width: spacing[12],
+              height: spacing[12],
+              marginRight: spacing[4]
+            }}
             source={
               token.image ||
               'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png'
@@ -31,7 +46,16 @@ const Token = ({ token, handleTokenPress }: TokenProps) => {
             placeholder={{ blurhash: 'L5H2EC=PM+yV0g-mq.wG9c010JIp0M%LxtRj' }}
           />
           <Image
-            className="rounded-full w-5 h-5 absolute bottom-0 right-2 border-2 border-neutral-800"
+            style={{
+              borderRadius: 80,
+              width: spacing[5],
+              height: spacing[5],
+              position: 'absolute',
+              bottom: 0,
+              right: spacing[2],
+              borderWidth: 2,
+              borderColor: colors.neutral[800]
+            }}
             source={
               token.chainImage ||
               'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png'
@@ -40,10 +64,12 @@ const Token = ({ token, handleTokenPress }: TokenProps) => {
           />
         </View>
         <View>
-          <View className="flex-row">
-            <BaseText className="font-semibold mr-1">{token.abbr}</BaseText>
+          <View style={{ flexDirection: 'row' }}>
+            <BaseText style={{ fontWeight: 600, marginRight: 1 }}>
+              {token.abbr}
+            </BaseText>
             <BaseText
-              className="text-sm text-gold-200"
+              style={{ color: colors.gold[200], fontSize: textSize.sm }}
               ellipsizeMode="tail"
               numberOfLines={1}
             >
@@ -51,7 +77,7 @@ const Token = ({ token, handleTokenPress }: TokenProps) => {
             </BaseText>
           </View>
           <BaseText
-            className="opacity-60"
+            style={{ opacity: 0.6 }}
             ellipsizeMode="tail"
             numberOfLines={1}
           >
@@ -59,11 +85,20 @@ const Token = ({ token, handleTokenPress }: TokenProps) => {
           </BaseText>
         </View>
       </View>
-      <View className="items-end justify-end">
-        <BaseText className="font-semibold">
+      <View
+        style={{
+          alignItems: 'flex-end',
+          justifyContent: 'flex-end'
+        }}
+      >
+        <BaseText style={{ fontWeight: 600 }}>
           {parseFloat(token.balance).toFixed(4)}
         </BaseText>
-        <BaseText className="opacity-60" ellipsizeMode="tail" numberOfLines={1}>
+        <BaseText
+          style={{ opacity: 0.6 }}
+          ellipsizeMode="tail"
+          numberOfLines={1}
+        >
           ~ ${formatNumberWithCommas(token.usdBalance)} USD
         </BaseText>
       </View>

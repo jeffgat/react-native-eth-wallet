@@ -14,8 +14,10 @@ import { userAtom } from '../state/atoms';
 import Container from '../ui/container';
 import BaseText from '../ui/text';
 import BaseTextInput from '../ui/text-input';
+import { THEME } from '../ui/theme';
 
 const ViewWalletScreen = ({ navigation }) => {
+  const { colors, textSize, spacing } = THEME;
   const [addressInput, setAddressInput] = useState('');
   const [addressInputError, setAddressInputError] = useState('');
   const [user, setUser] = useAtom(userAtom);
@@ -31,7 +33,7 @@ const ViewWalletScreen = ({ navigation }) => {
 
   // effects
   useEffect(() => {
-    if (!ethers.utils.isAddress(addressInput) && addressInput.length > 0) {
+    if (!ethers.utils.isAddress(addressInput) && addressInput.length >= 42) {
       setAddressInputError('Invalid address');
     } else {
       setAddressInputError('');
@@ -40,55 +42,115 @@ const ViewWalletScreen = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView
-      className="flex flex-1"
+      style={{
+        flex: 1
+      }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <SafeAreaView
-        className="flex-1 bg-neutral-900"
         style={{
+          flex: 1,
+          backgroundColor: colors.neutral[900],
           paddingTop:
             Platform.OS === 'android' ? Constants.statusBarHeight + 48 : 0
         }}
       >
-        <Container className="flex flex-1 justify-between">
+        <Container
+          style={{
+            flex: 1,
+            justifyContent: 'space-between'
+          }}
+        >
           <ScrollView keyboardShouldPersistTaps="handled" bounces={false}>
-            <BaseText className="text-center text-2xl font-bold mx-auto mb-2">
+            <BaseText
+              style={{
+                fontSize: textSize['2xl'],
+                fontWeight: 700,
+                marginBottom: spacing[2],
+                textAlign: 'center'
+              }}
+            >
               Enter a wallet address
             </BaseText>
-            <BaseText className="text-center font-medium opacity-60 mx-auto">
+            <BaseText
+              style={{
+                fontWeight: 500,
+                opacity: 0.6,
+                textAlign: 'center'
+              }}
+            >
               You will be only be able to see the assets in this wallet. You
               will not be able to send transactions until you import your
               12-word seed phrase.
             </BaseText>
             <BaseTextInput
-              className="h-12 px-2 text-neutral-150 bg-neutral-800 rounded-md mt-4 border items-center"
+              style={{
+                marginTop: spacing[4],
+                height: spacing[12],
+                padding: spacing[2],
+                borderWidth: 1,
+                backgroundColor: colors.neutral[800],
+                color: colors.neutral[150]
+              }}
               textValue={addressInput}
               setTextValue={setAddressInput}
               placeholder="Wallet address"
             />
             {addressInputError ? (
-              <BaseText className="text-red-400 text-center py-1 mt-2">
+              <BaseText
+                style={{
+                  color: colors.red[400],
+                  textAlign: 'center',
+                  marginTop: spacing[2]
+                }}
+              >
                 {addressInputError}
               </BaseText>
             ) : null}
-            <ScrollView horizontal></ScrollView>
           </ScrollView>
 
           <TouchableOpacity
-            className="px-4 mb-2 rounded-md border border-gold-300 h-12 items-center justify-center flex"
+            style={{
+              borderRadius: spacing[2],
+              borderWidth: 1,
+              borderColor: colors.gold[300],
+              marginBottom: spacing[2],
+              height: spacing[12],
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
             onPress={() =>
               setAddressInput('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045')
             }
           >
-            <BaseText className="text-center text-gold-300 font-bold">
-              {`Autofill with Vitalik's address`}
+            <BaseText
+              style={{
+                textAlign: 'center',
+                color: colors.gold[300],
+                fontWeight: 500
+              }}
+            >
+              Autofill with Vitalik's address
             </BaseText>
           </TouchableOpacity>
           <TouchableOpacity
-            className="mb-4 rounded-md bg-gold-600 h-12 items-center justify-center flex"
+            style={{
+              backgroundColor: colors.gold[600],
+              borderRadius: spacing[2],
+              marginBottom: spacing[4],
+              height: spacing[12],
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
             onPress={handleSubmit}
           >
-            <BaseText className="text-center text-white font-bold">
+            <BaseText
+              style={{
+                textAlign: 'center',
+                color: colors.neutral[0],
+                fontWeight: 600
+              }}
+            >
               Continue
             </BaseText>
           </TouchableOpacity>

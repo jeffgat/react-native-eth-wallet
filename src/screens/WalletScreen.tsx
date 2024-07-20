@@ -13,7 +13,6 @@ import Toast from 'react-native-toast-message';
 import LogoutSheet from '../components/LogoutSheet';
 import TokenList from '../components/TokenList';
 import { providers } from '../constants/providers';
-import { THEME } from '../constants/theme';
 import { Screens } from '../routes/screens';
 import {
   getTokenBalancesAcrossChains,
@@ -22,10 +21,11 @@ import {
 import { totalBalanceAtom, userAtom } from '../state/atoms';
 import Container from '../ui/container';
 import BaseText from '../ui/text';
-import { cn } from '../utils/helpers';
+import { THEME } from '../ui/theme';
 import { useAsyncData } from '../utils/hooks';
 
 const WalletScreen = ({ navigation }) => {
+  const { colors, textSize, spacing } = THEME;
   // todo: need a loading state for this
   const [_, setTokenToSend] = useState(null);
   const logoutSheetRef = useRef<BottomSheet>(null);
@@ -82,16 +82,37 @@ const WalletScreen = ({ navigation }) => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-900">
-      <Container className="flex-1">
-        <View className="mb-4">
-          <View className="flex-row justify-between w-full">
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: colors.neutral[900]
+      }}
+    >
+      <Container style={{ flex: 1 }}>
+        <View style={{ marginBottom: spacing[4] }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              width: '100%'
+            }}
+          >
             <TouchableOpacity
-              className="flex-row items-center"
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center'
+              }}
               onPress={handleCopy}
             >
               <BaseText
-                className="font-medium my-4 w-1/2 text-lg mr-2"
+                style={{
+                  fontWeight: 500,
+                  fontSize: textSize['lg'],
+                  marginTop: spacing[4],
+                  marginBottom: spacing[4],
+                  marginRight: spacing[2],
+                  width: '50%'
+                }}
                 ellipsizeMode="middle"
                 numberOfLines={1}
               >
@@ -105,7 +126,10 @@ const WalletScreen = ({ navigation }) => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              className="flex-row items-center"
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center'
+              }}
               onPress={() => logoutSheetRef?.current?.snapToIndex(1)}
             >
               <MaterialIcons
@@ -115,58 +139,141 @@ const WalletScreen = ({ navigation }) => {
               />
             </TouchableOpacity>
           </View>
-          <View className="flex-row items-center mb-2">
-            <BaseText className="font-medium uppercase text-sm opacity-60">
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginBottom: spacing[2]
+            }}
+          >
+            <BaseText
+              style={{
+                fontWeight: 500,
+                fontSize: textSize['sm'],
+                textTransform: 'uppercase',
+                opacity: 0.6
+              }}
+            >
               Total Balance
             </BaseText>
-            <View className="bg-neutral-800 ml-2 px-3 rounded-full">
-              <BaseText className="text-sm font-medium">USD</BaseText>
+            <View
+              style={{
+                backgroundColor: colors.neutral[800],
+                paddingLeft: spacing[3],
+                marginLeft: spacing[2],
+                paddingRight: spacing[3],
+                borderRadius: 80
+              }}
+            >
+              <BaseText
+                style={{
+                  fontWeight: 500,
+                  fontSize: textSize['sm']
+                }}
+              >
+                USD
+              </BaseText>
             </View>
           </View>
           {tokenBalancesLoading ? (
             <Skeleton height={40} width={120} radius={80} />
           ) : (
-            <BaseText className="font-bold uppercase text-4xl">
+            <BaseText
+              style={{
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                fontSize: textSize['4xl']
+              }}
+            >
               ${parseFloat(totalBalance?.toFixed(2)).toLocaleString()}
             </BaseText>
           )}
         </View>
-        <View className="flex-row justify-between mb-4">
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginBottom: spacing[4]
+          }}
+        >
           {user.encryptedPrivateKey ? null : (
             <TouchableOpacity
               onPress={() => navigation.navigate(Screens.ImportWallet)}
-              className={cn(
-                'bg-neutral-150 p-3 rounded-md flex-row items-center justify-center flex-1 mr-2'
-              )}
+              style={{
+                backgroundColor: colors.neutral[150],
+                padding: spacing[3],
+                borderRadius: spacing[2],
+                marginRight: spacing[2],
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flex: 1
+              }}
             >
               <MaterialCommunityIcons
                 name="file-import"
                 size={28}
                 color={THEME.colors.neutral[900]}
               />
-              <BaseText className="text-neutral-900 text-lg font-medium ml-1">
+              <BaseText
+                style={{
+                  color: colors.neutral[900],
+                  fontWeight: 500,
+                  fontSize: textSize['lg'],
+                  marginLeft: spacing[1]
+                }}
+              >
                 Import
               </BaseText>
             </TouchableOpacity>
           )}
           <TouchableOpacity
             onPress={handleCopy}
-            className="bg-neutral-150 p-3 rounded-md flex-row items-center justify-center flex-1 mr-2"
+            style={{
+              backgroundColor: colors.neutral[150],
+              padding: spacing[3],
+              borderRadius: spacing[2],
+              marginRight: spacing[2],
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flex: 1
+            }}
           >
             <MaterialIcons
               name="call-received"
               size={28}
               color={THEME.colors.neutral[900]}
             />
-            <BaseText className="text-neutral-900 text-lg font-medium ml-1">
+            <BaseText
+              style={{
+                color: colors.neutral[900],
+                fontWeight: 500,
+                fontSize: textSize['lg'],
+                marginLeft: spacing[1]
+              }}
+            >
               Receive
             </BaseText>
           </TouchableOpacity>
         </View>
         {user.encryptedPrivateKey ? null : (
-          <View className="flex-row items-center opacity-80 mb-4">
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginBottom: spacing[4],
+              opacity: 0.8
+            }}
+          >
             <Entypo name="warning" size={24} color={THEME.colors.orange[400]} />
-            <BaseText className="text-orange-400 font-medium ml-2">
+            <BaseText
+              style={{
+                fontWeight: 500,
+                color: colors.orange[400],
+                marginLeft: spacing[2]
+              }}
+            >
               This is a view only wallet. Import your 12-word seed phrase to
               send transactions.
             </BaseText>

@@ -1,29 +1,30 @@
 import React, { useState } from 'react';
 import { Keyboard, TextInput, TextInputProps, TextStyle } from 'react-native';
-import { THEME } from '../constants/theme';
+import { THEME } from './theme';
 
 interface BaseTextInputProps extends TextInputProps {
   textValue: string;
   setTextValue: (text: string) => void;
-  style?: TextStyle[];
+  style?: TextStyle;
 }
 
 const BaseTextInput = ({
   textValue,
   setTextValue,
-  style = [],
+  style,
   ...props
 }: BaseTextInputProps) => {
   const [inputFocused, setInputFocused] = useState(false);
 
   const defaultStyle = [
     {
-      borderColor: inputFocused ? THEME.colors.gold[500] : 'transparent'
+      borderColor: inputFocused ? THEME.colors.gold[500] : 'transparent',
+      borderRadius: THEME.spacing[2]
     }
   ];
   return (
     <TextInput
-      style={[defaultStyle, ...style]}
+      style={[defaultStyle, style]}
       {...props}
       placeholderTextColor={THEME.colors.neutral[550]}
       autoCapitalize="none"

@@ -2,6 +2,7 @@ import Constants from 'expo-constants';
 import * as SplashScreen from 'expo-splash-screen';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
+import { THEME } from '../ui/theme';
 
 interface Props {
   children: React.ReactNode;
@@ -38,7 +39,7 @@ export default function AnimatedSplashScreen({ children, image }: Props) {
   }, []);
 
   return (
-    <View className="bg-netural-900 flex-1">
+    <View style={{ backgroundColor: THEME.colors.neutral[900], flex: 1 }}>
       {isAppReady && children}
       {!isSplashAnimationComplete && (
         <Animated.View

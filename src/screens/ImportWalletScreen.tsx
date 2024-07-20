@@ -16,10 +16,12 @@ import Container from '../ui/container';
 import Spinner from '../ui/spinner';
 import BaseText from '../ui/text';
 import BaseTextInput from '../ui/text-input';
+import { THEME } from '../ui/theme';
 import { encryptString } from '../utils/cryptography';
-import { cn, validateMnemonic } from '../utils/helpers';
+import { validateMnemonic } from '../utils/helpers';
 
 const ImportWalletScreen = ({ navigation }) => {
+  const { colors, textSize, spacing } = THEME;
   const [textValue, setTextValue] = useState(
     'test test test test test test test test test test test junk'
   );
@@ -67,28 +69,56 @@ const ImportWalletScreen = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView
-      className="flex flex-1"
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{
+        flex: 1
+      }}
     >
       <SafeAreaView
-        className="flex-1 bg-neutral-900"
         style={{
+          flex: 1,
+          backgroundColor: colors.neutral[900],
           paddingTop:
             Platform.OS === 'android' ? Constants.statusBarHeight + 48 : 0
         }}
       >
-        <Container className="flex flex-1 justify-between">
+        <Container
+          style={{
+            flex: 1,
+            justifyContent: 'space-between'
+          }}
+        >
           <ScrollView keyboardShouldPersistTaps="handled" bounces={false}>
-            <BaseText className="text-center text-2xl font-bold mx-auto mb-2">
+            <BaseText
+              style={{
+                fontSize: textSize['2xl'],
+                fontWeight: 700,
+                marginBottom: spacing[2],
+                textAlign: 'center'
+              }}
+            >
               Enter your recovery phrase
             </BaseText>
-            <BaseText className="text-center font-medium opacity-60 mx-auto">
+            <BaseText
+              style={{
+                fontWeight: 500,
+                opacity: 0.6,
+                textAlign: 'center'
+              }}
+            >
               We do NOT store your recovery phrase anywhere except locally on
               your device.
             </BaseText>
             <BaseTextInput
               multiline
-              className="h-20 px-2 text-neutral-150 bg-neutral-800 rounded-md mt-4 border"
+              style={{
+                marginTop: spacing[4],
+                height: 80,
+                padding: spacing[2],
+                borderWidth: 1,
+                backgroundColor: colors.neutral[800],
+                color: colors.neutral[150]
+              }}
               placeholder="Enter your 12-word seed phrase"
               textValue={textValue}
               setTextValue={setTextValue}
@@ -96,24 +126,41 @@ const ImportWalletScreen = ({ navigation }) => {
             />
 
             {errorText ? (
-              <BaseText className="text-red-400 mt-2 text-center">
+              <BaseText
+                style={{
+                  color: colors.red[400],
+                  textAlign: 'center',
+                  marginTop: spacing[2]
+                }}
+              >
                 {errorText}
               </BaseText>
             ) : null}
           </ScrollView>
 
           <TouchableOpacity
-            className={cn(
-              'mb-4 rounded-md bg-gold-600 h-12 items-center justify-center flex',
-              submitting && 'opacity-60'
-            )}
+            style={{
+              backgroundColor: colors.gold[600],
+              borderRadius: spacing[2],
+              marginBottom: spacing[4],
+              height: spacing[12],
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: submitting ? 0.4 : 1
+            }}
             onPress={handleSubmit}
             disabled={submitting}
           >
             {submitting ? (
               <Spinner />
             ) : (
-              <BaseText className="text-center text-white font-bold">
+              <BaseText
+                style={{
+                  textAlign: 'center',
+                  color: colors.neutral[0],
+                  fontWeight: 600
+                }}
+              >
                 Import Wallet
               </BaseText>
             )}

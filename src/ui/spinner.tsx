@@ -11,7 +11,7 @@ interface SpinnerProps {
 const Spinner = ({ size = 24, color = 'white' }: SpinnerProps) => {
   return (
     <MotiView
-      className="absolute"
+      style={{ position: 'absolute' }}
       from={{ rotate: '0deg' }}
       animate={{ rotate: '360deg' }}
       transition={{
