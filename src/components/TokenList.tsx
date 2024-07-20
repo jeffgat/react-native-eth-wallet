@@ -83,12 +83,10 @@ const TokenList = ({
       ) : (
         <View style={{ flex: 1 }}>
           <FlatList
-            style={{ flex: 1 }}
             data={tokenBalancesData}
             renderItem={({ item }) => (
               <Token token={item} handleTokenPress={handleTokenPress} />
             )}
-            showsVerticalScrollIndicator={false}
           />
         </View>
       )}

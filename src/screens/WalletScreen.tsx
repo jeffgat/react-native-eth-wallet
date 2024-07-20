@@ -94,13 +94,13 @@ const WalletScreen = ({ navigation }) => {
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
-              width: '100%'
             }}
           >
             <TouchableOpacity
               style={{
                 flexDirection: 'row',
-                alignItems: 'center'
+                alignItems: 'center',
+                maxWidth: 100
               }}
               onPress={handleCopy}
             >
@@ -111,7 +111,7 @@ const WalletScreen = ({ navigation }) => {
                   marginTop: spacing[4],
                   marginBottom: spacing[4],
                   marginRight: spacing[2],
-                  width: '50%'
+                  // width: '50%',
                 }}
                 ellipsizeMode="middle"
                 numberOfLines={1}

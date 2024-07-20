@@ -42,5 +42,8 @@ export function validateMnemonic(mnemonic: string) {
 }
 
 export function formatNumberWithCommas(number: number, decimals: number = 2) {
+  if (number >= 1_000_000) {
+    return (number / 1_000_000).toFixed(decimals) + 'M';
+  }
   return parseFloat(number.toFixed(decimals)).toLocaleString();
 }

@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { useAtomValue } from 'jotai';
-import { TouchableOpacity, View } from 'react-native';
+import { Dimensions, TouchableOpacity, View } from 'react-native';
 import { TokenMetadata } from '../services/ethereum';
 import { userAtom } from '../state/atoms';
 import BaseText from '../ui/text';
@@ -14,6 +14,9 @@ type TokenProps = {
 
 const Token = ({ token, handleTokenPress }: TokenProps) => {
   const { colors, textSize, spacing } = THEME;
+  const { width } = Dimensions.get('window');
+
+  const isSmallDevice = width < 360;
   const user = useAtomValue(userAtom);
   return (
     <TouchableOpacity
@@ -62,8 +65,12 @@ const Token = ({ token, handleTokenPress }: TokenProps) => {
           />
         </View>
         <View>
-          <View style={{ flexDirection: 'row' }}>
-            <BaseText style={{ fontWeight: 600, marginRight: 1 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <BaseText
+              style={{ fontWeight: 600, marginRight: 1 }}
+              ellipsizeMode="tail"
+              numberOfLines={1}
+            >
               {token.abbr}
             </BaseText>
             <BaseText
