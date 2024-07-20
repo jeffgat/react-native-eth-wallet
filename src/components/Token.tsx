@@ -43,7 +43,6 @@ const Token = ({ token, handleTokenPress }: TokenProps) => {
               token.image ||
               'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png'
             }
-            placeholder={{ blurhash: 'L5H2EC=PM+yV0g-mq.wG9c010JIp0M%LxtRj' }}
           />
           <Image
             style={{
@@ -60,7 +59,6 @@ const Token = ({ token, handleTokenPress }: TokenProps) => {
               token.chainImage ||
               'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png'
             }
-            placeholder={{ blurhash: 'L5H2EC=PM+yV0g-mq.wG9c010JIp0M%LxtRj' }}
           />
         </View>
         <View>

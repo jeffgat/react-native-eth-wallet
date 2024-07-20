@@ -180,9 +180,6 @@ const SendScreen = ({ navigation, route }: SendScreenProps) => {
                       marginRight: spacing[4]
                     }}
                     source={params.image || TOKEN_IMAGES.eth}
-                    placeholder={{
-                      blurhash: 'L5H2EC=PM+yV0g-mq.wG9c010JIp0M%LxtRj'
-                    }}
                   />
                   <Image
                     style={{
@@ -196,9 +193,6 @@ const SendScreen = ({ navigation, route }: SendScreenProps) => {
                       borderColor: colors.neutral[900]
                     }}
                     source={params.chainImage || TOKEN_IMAGES.eth}
-                    placeholder={{
-                      blurhash: 'L5H2EC=PM+yV0g-mq.wG9c010JIp0M%LxtRj'
-                    }}
                   />
                 </View>
                 <View>
