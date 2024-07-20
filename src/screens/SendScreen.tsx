@@ -215,7 +215,6 @@ const SendScreen = ({ navigation, route }: SendScreenProps) => {
               >
                 <BaseText>Network Fee</BaseText>
                 <BaseText
-                  className="opacity-70"
                   style={{
                     opacity: 0.6
                   }}

@@ -95,7 +95,6 @@ const OnboardingScreen = ({ navigation }) => {
               color={THEME.colors.gold[600]}
             />
             <BaseText
-              className="font-bold text-lg ml-1"
               style={{
                 fontWeight: 700,
                 fontSize: textSize['lg'],

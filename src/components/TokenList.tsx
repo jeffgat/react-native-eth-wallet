@@ -31,7 +31,16 @@ const TokenList = ({
 
   return (
     <View style={{ flex: 1 }}>
-      <BaseText className={'font-semibold mr-2 my-4'}>Your Tokens</BaseText>
+      <BaseText
+        style={{
+          fontWeight: 600,
+          marginBottom: spacing[4],
+          marginTop: spacing[4],
+          marginRight: spacing[2]
+        }}
+      >
+        Your Tokens
+      </BaseText>
 
       {tokenBalancesLoading ? (
         <ScrollView showsVerticalScrollIndicator={false}>
