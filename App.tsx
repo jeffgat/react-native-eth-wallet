@@ -6,7 +6,7 @@ import './src/polyfills/base64';
 import Routes from './src/routes/routes';
 import { toastConfig } from './src/ui/toast-config';
 
-export default function App({}) {
+export default function App() {
   return (
     <AnimatedAppLoader>
       <GestureHandlerRootView>
