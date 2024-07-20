@@ -1,7 +1,6 @@
 import * as bip39 from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english';
 import clsx, { ClassValue } from 'clsx';
-import * as SecureStore from 'expo-secure-store';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
@@ -12,6 +11,7 @@ export function validateMnemonic(mnemonic: string) {
   const normalizedMnemonic = mnemonic.trim().toLowerCase();
 
   const words = normalizedMnemonic.split(/\s+/);
+
   if (words.length !== 12) {
     return {
       valid: false,
@@ -41,14 +41,6 @@ export function validateMnemonic(mnemonic: string) {
   }
 }
 
-export async function clearStorage(): Promise<void> {
-  await SecureStore.deleteItemAsync('encryptedPrivateKey');
-  await SecureStore.deleteItemAsync('publicAddress');
-}
-
-export function formatNumberWithCommas(
-  number: number,
-  decimals: number = 2
-) {
+export function formatNumberWithCommas(number: number, decimals: number = 2) {
   return parseFloat(number.toFixed(decimals)).toLocaleString();
 }

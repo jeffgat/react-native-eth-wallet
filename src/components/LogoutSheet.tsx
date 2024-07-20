@@ -4,24 +4,28 @@ import { useSetAtom } from 'jotai';
 import React, { useMemo } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { THEME } from '../constants/theme';
-import { totalBalanceAtom } from '../state/atoms';
-import BaseText from '../ui/text';
-import { clearStorage } from '../utils/helpers';
 import { Screens } from '../routes/screens';
+import { totalBalanceAtom, userAtom } from '../state/atoms';
+import BaseText from '../ui/text';
 
 const LogoutSheet = ({ navigation, sheetRef }) => {
   const setTotalBalance = useSetAtom(totalBalanceAtom);
+  const setUser = useSetAtom(userAtom);
+  const snapPoints = useMemo(() => ['25%', '33%'], []);
 
+  // handlers
   const handleClosePress = () => sheetRef.current.close();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setTotalBalance(null);
-    clearStorage();
+    setUser({
+      encryptedPrivateKey: null,
+      publicAddress: null
+    });
     handleClosePress();
     navigation.navigate(Screens.Onboarding);
   };
 
-  const snapPoints = useMemo(() => ['25%', '33%'], []);
 
   return (
     <BottomSheet

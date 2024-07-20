@@ -31,4 +31,3 @@ const initialValue = {
 
 export const userAtom = atomWithAsyncStorage('user', initialValue);
 export const totalBalanceAtom = atom(0);
-export const sendSheetContentAtom = atom(null);

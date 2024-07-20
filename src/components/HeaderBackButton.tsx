@@ -4,9 +4,7 @@ import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { THEME } from '../constants/theme';
 
-type Props = {};
-
-const Header = (props: Props) => {
+const Header = () => {
   const navigation = useNavigation();
   return (
     <TouchableOpacity onPress={() => navigation.goBack()}>

@@ -14,6 +14,37 @@ export interface ERC20Token extends Token {
   chain: string;
 }
 
+export const nativeTokens = {
+  ethereum: {
+    name: 'Ethereum',
+    abbr: 'ETH',
+    image: TOKEN_IMAGES.eth,
+    priceFeed: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
+    chainImage: TOKEN_IMAGES.eth
+  },
+  polygon: {
+    name: 'Polygon',
+    abbr: 'MATIC',
+    image: TOKEN_IMAGES.matic,
+    priceFeed: '0xAB594600376Ec9fD91F8e885dADF0CE036862dE0',
+    chainImage: TOKEN_IMAGES.matic
+  },
+  optimism: {
+    name: 'Optimistic ETH',
+    abbr: 'ETH',
+    image: TOKEN_IMAGES.eth,
+    priceFeed: '0x13e3Ee699D1909E989722E753853AE30b17e08c5',
+    chainImage: TOKEN_IMAGES.op
+  },
+  arbitrum: {
+    name: 'Arbitrum ETH',
+    abbr: 'ETH',
+    image: TOKEN_IMAGES.eth,
+    priceFeed: '0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612',
+    chainImage: TOKEN_IMAGES.arb
+  }
+};
+
 export const erc20Tokens: ERC20Token[] = [
   {
     chain: 'ethereum',
@@ -150,33 +181,3 @@ export const erc20Tokens: ERC20Token[] = [
     chainImage: TOKEN_IMAGES.arb
   }
 ];
-export const nativeTokens = {
-  ethereum: {
-    name: 'Ethereum',
-    abbr: 'ETH',
-    image: TOKEN_IMAGES.eth,
-    priceFeed: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
-    chainImage: TOKEN_IMAGES.eth
-  },
-  polygon: {
-    name: 'Polygon',
-    abbr: 'MATIC',
-    image: TOKEN_IMAGES.matic,
-    priceFeed: '0xAB594600376Ec9fD91F8e885dADF0CE036862dE0',
-    chainImage: TOKEN_IMAGES.matic
-  },
-  optimism: {
-    name: 'Optimistic ETH',
-    abbr: 'ETH',
-    image: TOKEN_IMAGES.eth,
-    priceFeed: '0x13e3Ee699D1909E989722E753853AE30b17e08c5',
-    chainImage: TOKEN_IMAGES.op
-  },
-  arbitrum: {
-    name: 'Arbitrum ETH',
-    abbr: 'ETH',
-    image: TOKEN_IMAGES.eth,
-    priceFeed: '0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612',
-    chainImage: TOKEN_IMAGES.arb
-  }
-};

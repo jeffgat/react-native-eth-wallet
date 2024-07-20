@@ -8,7 +8,6 @@ interface Props {
   image: any;
 }
 
-// Instruct SplashScreen not to hide yet, we want to do this manually
 SplashScreen.preventAutoHideAsync().catch(() => {
   /* reloading the app might trigger some race conditions, ignore them */
 });
@@ -31,7 +30,6 @@ export default function AnimatedSplashScreen({ children, image }: Props) {
   const onImageLoaded = useCallback(async () => {
     try {
       await SplashScreen.hideAsync();
-      // await Promise.all([]);
     } catch (e) {
       console.warn('AnimatedSplashScreen', e);
     } finally {

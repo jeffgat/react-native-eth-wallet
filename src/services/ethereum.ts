@@ -4,56 +4,82 @@ import erc20abi from '../abis/erc20.json';
 import { Providers } from '../constants/providers';
 import { ERC20Token, erc20Tokens, nativeTokens } from '../constants/tokens';
 
+type SendTransactionRequest = {
+  toAddress: string;
+  wallet: ethers.Wallet;
+  amount: string;
+  gasPrice: ethers.BigNumber;
+};
+
+export type TokenMetadata = {
+  chain: string;
+  name: string;
+  abbr: string;
+  image: string;
+  chainImage: string;
+  usdBalance: number;
+  price: number;
+  balance: string;
+};
+
+async function getPriceFromFeed(
+  provider: ethers.providers.Provider,
+  priceFeedAddress: string
+) {
+  const priceFeed = new ethers.Contract(
+    priceFeedAddress,
+    priceFeedAbi,
+    provider
+  );
+  const latestRoundData = await priceFeed.latestRoundData();
+  const decimals = await priceFeed.decimals();
+  const price = latestRoundData.answer;
+  return parseFloat(ethers.utils.formatUnits(price, decimals));
+}
+
 async function getErc20TokenBalances(
   provider: ethers.providers.InfuraProvider,
   tokens: ERC20Token[],
   address: string
 ) {
-  const results = [];
+  const results: TokenMetadata[] = [];
 
   for (const token of tokens) {
     try {
       const contract = new ethers.Contract(token.address, erc20abi, provider);
-      const priceFeed = new ethers.Contract(
-        token.priceFeed,
-        priceFeedAbi,
-        provider
-      );
       const balance = await contract.balanceOf(address);
-      const latestRoundData = await priceFeed.latestRoundData();
-      const decimals = await priceFeed.decimals();
-      const price = latestRoundData.answer;
+      const price = await getPriceFromFeed(provider, token.priceFeed);
 
-      if (balance.gt(0)) {
+      // was using this check, however, it made app look bare without have enough tokens in wallet
+      // if (balance.gt(0)) {
         results.push({
           chain: token.chain,
-          image: token.image,
-          chainImage: token.chainImage,
-          usdBalance:
-            parseFloat(ethers.utils.formatUnits(price, decimals)) *
-            parseFloat(ethers.utils.formatUnits(balance, token.decimals)),
-          price: parseFloat(ethers.utils.formatUnits(price, decimals)),
           name: token.name,
           abbr: token.abbr,
-          address: token.address,
-          balance: ethers.utils.formatUnits(balance, token.decimals)
+          image: token.image,
+          chainImage: token.chainImage,
+          price,
+          usdBalance: price * parseFloat(ethers.utils.formatEther(balance)),
+          balance: ethers.utils.formatEther(balance)
         });
-      }
+      // }
     } catch (error) {
-      console.error(`Error fetching balance for token ${token.abbr}:`, error);
+      console.log('getErc20TokenBalances error');
+      throw new Error(error);
     }
   }
 
   return results;
 }
 
-export async function getErc20BalancesAcrossChains(
+export async function getTokenBalancesAcrossChains(
   providers: Providers,
   address: string
 ) {
-  const results = [];
+  const results: TokenMetadata[] = [];
 
   for (const [chain, provider] of Object.entries(providers)) {
+    // erc20
     const erc20s = erc20Tokens.filter((token) => token.chain === chain);
     if (erc20s) {
       const chainBalances = await getErc20TokenBalances(
@@ -63,31 +89,16 @@ export async function getErc20BalancesAcrossChains(
       );
       results.push(...chainBalances);
     } else {
-      console.log(`No tokens found for chain: ${chain}`);
+      console.error(`no tokens found for chain: ${chain}`);
     }
-  }
 
-  return results.sort((a, b) => b.usdBalance - a.usdBalance);
-}
-
-export async function getNativeTokenBalances(
-  providers: Providers,
-  address: string
-) {
-  const results = [];
-
-  for (const [chain, provider] of Object.entries(providers)) {
+    // native
     try {
       const balance = await provider.getBalance(address);
-
-      const priceFeed = new ethers.Contract(
-        nativeTokens[chain].priceFeed,
-        priceFeedAbi,
-        provider
+      const price = await getPriceFromFeed(
+        provider,
+        nativeTokens[chain].priceFeed
       );
-      const latestRoundData = await priceFeed.latestRoundData();
-      const decimals = await priceFeed.decimals();
-      const price = latestRoundData.answer;
 
       results.push({
         chain,
@@ -95,14 +106,13 @@ export async function getNativeTokenBalances(
         abbr: nativeTokens[chain].abbr,
         image: nativeTokens[chain].image,
         chainImage: nativeTokens[chain].chainImage,
-        usdBalance:
-          parseFloat(ethers.utils.formatUnits(price, decimals)) *
-          parseFloat(ethers.utils.formatEther(balance)),
-        price: parseFloat(ethers.utils.formatUnits(price, decimals)),
+        price,
+        usdBalance: price * parseFloat(ethers.utils.formatEther(balance)),
         balance: ethers.utils.formatEther(balance)
       });
     } catch (error) {
-      console.error(`Error fetching native token balance on ${chain}:`, error);
+      console.log('getTokenBalancesAcrossChains error');
+      throw new Error(error);
     }
   }
 
@@ -115,13 +125,6 @@ export const getGasPrice = async (
   return await provider.getFeeData();
 };
 
-type SendTransactionRequest = {
-  toAddress: string;
-  wallet: ethers.Wallet;
-  amount: string;
-  gasPrice: ethers.BigNumber;
-};
-
 export async function sendTransaction({
   toAddress,
   wallet,
@@ -131,7 +134,7 @@ export async function sendTransaction({
   const transaction = {
     to: toAddress,
     value: ethers.utils.parseEther(amount),
-    gasLimit: ethers.utils.hexlify(200000), // arbitrary gas limit
+    gasLimit: ethers.utils.hexlify(200000), // just an arbitrary gas limit
     gasPrice
   };
 
@@ -142,6 +145,7 @@ export async function sendTransaction({
     const receipt = await txResponse.wait();
     console.log('receipt', receipt);
   } catch (err) {
+    console.log('getGasPrice error');
     throw new Error(err);
   }
 }

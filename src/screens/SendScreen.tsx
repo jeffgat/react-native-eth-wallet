@@ -1,3 +1,4 @@
+import { RouteProp } from '@react-navigation/native';
 import { ethers } from 'ethers';
 import Constants from 'expo-constants';
 import { Image } from 'expo-image';
@@ -15,7 +16,11 @@ import Toast from 'react-native-toast-message';
 import { TOKEN_IMAGES } from '../constants/images';
 import { providers } from '../constants/providers';
 import { Screens } from '../routes/screens';
-import { getGasPrice, sendTransaction } from '../services/ethereum';
+import {
+  getGasPrice,
+  sendTransaction,
+  TokenMetadata
+} from '../services/ethereum';
 import { userAtom } from '../state/atoms';
 import Container from '../ui/container';
 import Spinner from '../ui/spinner';
@@ -25,25 +30,34 @@ import { decryptString } from '../utils/cryptography';
 import { cn } from '../utils/helpers';
 import { useAsyncData } from '../utils/hooks';
 
-const SendSheet = ({ navigation, route }) => {
+type RootStackParamList = {
+  SendScreen: TokenMetadata;
+};
+
+type SendScreenRouteProp = RouteProp<RootStackParamList, 'SendScreen'>;
+
+interface SendScreenProps {
+  navigation: any;
+  route: SendScreenRouteProp;
+}
+const SendScreen = ({ navigation, route }: SendScreenProps) => {
   const { params } = route;
   const user = useAtomValue(userAtom);
+  const [txLoading, setTxLoading] = useState(false);
   const [addressInput, setAddressInput] = useState(
     '0xb00C4B4035b36c28286e8b7e806D13fBd7B2e585'
   );
-  const [txLoading, setTxLoading] = useState(false);
+  const [amountInput, setAmountInput] = useState('0.00');
   const [addressInputError, setAddressInputError] = useState('');
-  const [amountInput, setAmountInput] = useState('0.0001');
   const [amountInputError, setAmountInputError] = useState('');
   const [gasGwei, setGasGwei] = useState('0');
-
   const gasPrice = useCallback(() => {
     return getGasPrice(providers[params.chain]);
   }, []);
 
   const { data: gas } = useAsyncData(gasPrice);
 
-  //
+  // effects
   useEffect(() => {
     if (gas && params.price) {
       setGasGwei(ethers.utils.formatUnits(gas.gasPrice, 'gwei'));
@@ -66,6 +80,7 @@ const SendSheet = ({ navigation, route }) => {
     }
   }, [addressInput]);
 
+  // handlers
   const handleSend = async () => {
     if (!user.encryptedPrivateKey) {
       return console.log('no private key');
@@ -101,6 +116,21 @@ const SendSheet = ({ navigation, route }) => {
     }
     setTxLoading(false);
   };
+
+  // probably clean this validation up, and write a test for it
+  const disableButtonConditions =
+    txLoading ||
+    amountInput === '' ||
+    !!amountInputError ||
+    !!addressInputError ||
+    !gas ||
+    parseFloat(params.balance) < parseFloat(amountInput) ||
+    parseFloat(amountInput) <= 0 ||
+    isNaN(Number(amountInput));
+
+  if (!params || !user.encryptedPrivateKey) {
+    return navigation.navigate(Screens.Wallet);
+  }
 
   return (
     <KeyboardAvoidingView
@@ -173,12 +203,12 @@ const SendSheet = ({ navigation, route }) => {
               textValue={amountInput}
               setTextValue={setAmountInput}
               placeholder="Amount"
-              keyboardType="number-pad"
+              keyboardType="decimal-pad"
             />
 
             <View className="flex-row justify-between py-4">
               <BaseText className="opacity-70">
-                ~ ${(parseFloat(amountInput) * params.price).toFixed(2)}
+                ~ ${(parseFloat(amountInput) * params.price || 0).toFixed(2)}
               </BaseText>
 
               <View className="flex-row">
@@ -206,9 +236,12 @@ const SendSheet = ({ navigation, route }) => {
 
           {/* txLoading */}
           <TouchableOpacity
-            className="mb-4 rounded-md bg-gold-600 h-12 items-center justify-center flex"
+            className={cn(
+              'mb-4 rounded-md bg-gold-600 h-12 items-center justify-center flex',
+              disableButtonConditions && 'opacity-40'
+            )}
             onPress={handleSend}
-            disabled={txLoading}
+            disabled={disableButtonConditions}
           >
             {txLoading ? (
               <Spinner />
@@ -224,4 +257,4 @@ const SendSheet = ({ navigation, route }) => {
   );
 };
 
-export default SendSheet;
+export default SendScreen;

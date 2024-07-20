@@ -5,36 +5,45 @@ import {
 } from '@expo/vector-icons';
 import BottomSheet from '@gorhom/bottom-sheet';
 import * as Clipboard from 'expo-clipboard';
-import { useAtomValue } from 'jotai';
-import React, { useEffect, useRef, useState } from 'react';
+import { useAtom, useAtomValue } from 'jotai';
+import { Skeleton } from 'moti/skeleton';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { SafeAreaView, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import LogoutSheet from '../components/LogoutSheet';
 import TokenList from '../components/TokenList';
+import { providers } from '../constants/providers';
 import { THEME } from '../constants/theme';
-import { totalBalanceAtom, userAtom } from '../state/atoms';
-
 import { Screens } from '../routes/screens';
+import {
+  getTokenBalancesAcrossChains,
+  TokenMetadata
+} from '../services/ethereum';
+import { totalBalanceAtom, userAtom } from '../state/atoms';
 import Container from '../ui/container';
 import BaseText from '../ui/text';
-import { decryptString } from '../utils/cryptography';
 import { cn } from '../utils/helpers';
+import { useAsyncData } from '../utils/hooks';
 
 const WalletScreen = ({ navigation }) => {
   // todo: need a loading state for this
-  const totalBalance = useAtomValue(totalBalanceAtom);
-  const [tokenToSend, setTokenToSend] = useState(null);
-  const [privateKey, setPrivateKey] = useState(null);
+  const [_, setTokenToSend] = useState(null);
   const logoutSheetRef = useRef<BottomSheet>(null);
+  const [totalBalance, setTotalBalance] = useAtom(totalBalanceAtom);
   const user = useAtomValue(userAtom);
 
-  useEffect(() => {
-    if (user.encryptedPrivateKey) {
-      setPrivateKey(decryptString(user.encryptedPrivateKey));
-    }
+  const tokenBalances = useCallback(() => {
+    return getTokenBalancesAcrossChains(providers, user.publicAddress);
   }, [user]);
 
-  // check for private key
+  // need to invalidate everything when the wallet address changes
+  const {
+    data: tokenBalancesData,
+    isLoading: tokenBalancesLoading,
+    error: tokenBalancesError
+  } = useAsyncData(tokenBalances);
+
+  // handlers
   const handleCopy = async () => {
     await Clipboard.setStringAsync(user.publicAddress);
     Toast.show({
@@ -45,13 +54,31 @@ const WalletScreen = ({ navigation }) => {
     });
   };
 
-  const handleTokenPress = (item) => {
-    setTokenToSend(item);
-    navigation.navigate(Screens.Send, item);
+  const handleTokenPress = (token: TokenMetadata) => {
+    if (!user.encryptedPrivateKey) {
+      return;
+    }
+
+    setTokenToSend(token);
+    navigation.navigate(Screens.Send, token);
   };
 
+  // effects
+  useEffect(() => {
+    if (!tokenBalancesData) {
+      return;
+    }
+
+    const totalBalance = tokenBalancesData.reduce((acc, item) => {
+      acc += item.usdBalance;
+      return acc;
+    }, 0);
+
+    setTotalBalance(totalBalance);
+  }, [tokenBalancesData]);
+
   if (!user) {
-    return null;
+    return navigation.navigate(Screens.Onboarding);
   }
 
   return (
@@ -96,12 +123,16 @@ const WalletScreen = ({ navigation }) => {
               <BaseText className="text-sm font-medium">USD</BaseText>
             </View>
           </View>
-          <BaseText className="font-bold uppercase text-4xl">
-            ${parseFloat(totalBalance?.toFixed(2)).toLocaleString()}
-          </BaseText>
+          {tokenBalancesLoading ? (
+            <Skeleton height={40} width={120} radius={80} />
+          ) : (
+            <BaseText className="font-bold uppercase text-4xl">
+              ${parseFloat(totalBalance?.toFixed(2)).toLocaleString()}
+            </BaseText>
+          )}
         </View>
         <View className="flex-row justify-between mb-4">
-          {privateKey ? null : (
+          {user.encryptedPrivateKey ? null : (
             <TouchableOpacity
               onPress={() => navigation.navigate(Screens.ImportWallet)}
               className={cn(
@@ -132,7 +163,7 @@ const WalletScreen = ({ navigation }) => {
             </BaseText>
           </TouchableOpacity>
         </View>
-        {privateKey ? null : (
+        {user.encryptedPrivateKey ? null : (
           <View className="flex-row items-center opacity-80 mb-4">
             <Entypo name="warning" size={24} color={THEME.colors.orange[400]} />
             <BaseText className="text-orange-400 font-medium ml-2">
@@ -141,7 +172,12 @@ const WalletScreen = ({ navigation }) => {
             </BaseText>
           </View>
         )}
-        <TokenList handleTokenPress={handleTokenPress} />
+        <TokenList
+          handleTokenPress={handleTokenPress}
+          tokenBalancesData={tokenBalancesData}
+          tokenBalancesLoading={tokenBalancesLoading}
+          tokenBalancesError={tokenBalancesError}
+        />
       </Container>
       <LogoutSheet navigation={navigation} sheetRef={logoutSheetRef} />
     </SafeAreaView>

@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import Constants from 'expo-constants';
 import { useAtom } from 'jotai';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -9,25 +9,35 @@ import {
   ScrollView,
   TouchableOpacity
 } from 'react-native';
+import { Screens } from '../routes/screens';
 import { userAtom } from '../state/atoms';
 import Container from '../ui/container';
 import BaseText from '../ui/text';
 import BaseTextInput from '../ui/text-input';
-import { Screens } from '../routes/screens';
 
 const ViewWalletScreen = ({ navigation }) => {
-  const [textValue, setTextValue] = useState('');
+  const [addressInput, setAddressInput] = useState('');
+  const [addressInputError, setAddressInputError] = useState('');
   const [user, setUser] = useAtom(userAtom);
 
+  // handlers
   const handleSubmit = () => {
-    if (!ethers.utils.isAddress(textValue)) {
-      return console.log('invalid address');
+    if (!ethers.utils.isAddress(addressInput)) {
+      return;
     }
-
-    setUser({ ...user, publicAddress: textValue });
+    setUser({ ...user, publicAddress: addressInput });
     navigation.navigate(Screens.Wallet);
   };
-  // 0x616Ef1d3cB066BC4e5Ea0fbD06b4055F757c461A
+
+  // effects
+  useEffect(() => {
+    if (!ethers.utils.isAddress(addressInput) && addressInput.length > 0) {
+      setAddressInputError('Invalid address');
+    } else {
+      setAddressInputError('');
+    }
+  }, [addressInput]);
+
   return (
     <KeyboardAvoidingView
       className="flex flex-1"
@@ -51,25 +61,29 @@ const ViewWalletScreen = ({ navigation }) => {
               12-word seed phrase.
             </BaseText>
             <BaseTextInput
-              className="h-12 px-2 text-lg text-neutral-150 bg-neutral-800 rounded-md mt-4 border items-center"
-              textValue={textValue}
-              setTextValue={setTextValue}
+              className="h-12 px-2 text-neutral-150 bg-neutral-800 rounded-md mt-4 border items-center"
+              textValue={addressInput}
+              setTextValue={setAddressInput}
               placeholder="Wallet address"
             />
-            <ScrollView horizontal>
-              <TouchableOpacity
-                className="px-4 my-4 rounded-md border border-gold-300 h-12 items-center justify-center flex"
-                onPress={() =>
-                  setTextValue('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045')
-                }
-              >
-                <BaseText className="text-center text-gold-300 font-bold">
-                  {`Check out Vitalik's wallet`}
-                </BaseText>
-              </TouchableOpacity>
-            </ScrollView>
+            {addressInputError ? (
+              <BaseText className="text-red-400 text-center py-1 mt-2">
+                {addressInputError}
+              </BaseText>
+            ) : null}
+            <ScrollView horizontal></ScrollView>
           </ScrollView>
 
+          <TouchableOpacity
+            className="px-4 mb-2 rounded-md border border-gold-300 h-12 items-center justify-center flex"
+            onPress={() =>
+              setAddressInput('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045')
+            }
+          >
+            <BaseText className="text-center text-gold-300 font-bold">
+              {`Autofill with Vitalik's address`}
+            </BaseText>
+          </TouchableOpacity>
           <TouchableOpacity
             className="mb-4 rounded-md bg-gold-600 h-12 items-center justify-center flex"
             onPress={handleSubmit}

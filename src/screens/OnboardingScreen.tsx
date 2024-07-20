@@ -11,6 +11,7 @@ import { Screens } from '../routes/screens';
 const OnboardingScreen = ({ navigation }) => {
   const user = useAtomValue(userAtom);
 
+  // effects
   useEffect(() => {
     if (user.privateKey || user.publicAddress) {
       navigation.navigate(Screens.Wallet);

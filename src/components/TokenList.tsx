@@ -1,65 +1,28 @@
-import { useAtomValue, useSetAtom } from 'jotai';
 import { Skeleton } from 'moti/skeleton';
-import React, { useCallback, useEffect } from 'react';
+import React from 'react';
 import { FlatList, ScrollView, View } from 'react-native';
-import { providers } from '../constants/providers';
-import {
-  getErc20BalancesAcrossChains,
-  getNativeTokenBalances
-} from '../services/ethereum';
-
-import { totalBalanceAtom, userAtom } from '../state/atoms';
+import { TokenMetadata } from '../services/ethereum';
 import BaseText from '../ui/text';
-import { useAsyncData } from '../utils/hooks';
 import Token from './Token';
 
-const TokenList = ({ handleTokenPress }) => {
-  const user = useAtomValue(userAtom);
-  const setTotalBalance = useSetAtom(totalBalanceAtom);
+interface TokenListProps {
+  handleTokenPress: (token: any) => void;
+  tokenBalancesData: TokenMetadata[];
+  tokenBalancesLoading: boolean;
+  tokenBalancesError: Error;
+}
 
-  const nativeBalances = useCallback(() => {
-    return getNativeTokenBalances(providers, user.publicAddress);
-  }, []);
-  const erc20Balances = useCallback(() => {
-    return getErc20BalancesAcrossChains(providers, user.publicAddress);
-  }, []);
-
-  // need to invalidate everything when the wallet address changes
-  const {
-    data: nativeBalancesData,
-    isLoading: nativeBalancesLoading,
-    error: nativeBalancesError
-  } = useAsyncData(nativeBalances);
-  const {
-    data: erc20BalancesData,
-    isLoading: erc20BalancesLoading,
-    error: erc20BalancesError
-  } = useAsyncData(erc20Balances);
-
-  useEffect(() => {}, []);
-
-  useEffect(() => {
-    if (!nativeBalancesData || !erc20BalancesData) {
-      return;
-    }
-
-    const totalNativeBalance = nativeBalancesData.reduce((acc, item) => {
-      acc += item.usdBalance;
-      return acc;
-    }, 0);
-
-    const totalErc20Balance = erc20BalancesData.reduce((acc, item) => {
-      acc += item.usdBalance;
-      return acc;
-    }, 0);
-
-    setTotalBalance(totalNativeBalance + totalErc20Balance);
-  }, [nativeBalancesData, erc20BalancesData]);
-
-  if (nativeBalancesError || erc20BalancesError) {
+const TokenList = ({
+  handleTokenPress,
+  tokenBalancesData,
+  tokenBalancesLoading,
+  tokenBalancesError
+}: TokenListProps) => {
+  if (tokenBalancesError) {
     return (
       <View className="flex-1">
         <BaseText>Something went wrong with fetching your assets</BaseText>
+        {/* retry or redirect */}
       </View>
     );
   }
@@ -68,8 +31,8 @@ const TokenList = ({ handleTokenPress }) => {
     <View className="flex-1">
       <BaseText className={'font-semibold mr-2 my-4'}>Your Tokens</BaseText>
 
-      {nativeBalancesLoading || erc20BalancesLoading ? (
-        <ScrollView>
+      {tokenBalancesLoading ? (
+        <ScrollView showsVerticalScrollIndicator={false}>
           {Array.from({ length: 8 }).map((_, i) => (
             <View
               key={i}
@@ -92,12 +55,9 @@ const TokenList = ({ handleTokenPress }) => {
         <View className="flex-1">
           <FlatList
             className="flex-1"
-            data={[...nativeBalancesData, ...erc20BalancesData]}
+            data={tokenBalancesData}
             renderItem={({ item }) => (
-              <Token
-                item={item}
-                handleTokenPress={() => handleTokenPress(item)}
-              />
+              <Token token={item} handleTokenPress={handleTokenPress} />
             )}
             showsVerticalScrollIndicator={false}
           />
